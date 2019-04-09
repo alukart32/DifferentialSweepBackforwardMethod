@@ -5,32 +5,49 @@ import java.io.*;
 public class FileWrite {
     String space;
     // pathname of output files
-    private String filepath = "";
+    private String filepath;
+
+    public FileWrite(String filepath) {
+        this.filepath = filepath;
+    }
+
+    public FileWrite(String space, String filepath) {
+        this.space = space;
+        this.filepath = filepath;
+    }
+
     PrintWriter pw = new PrintWriter(System.out, true);
 
     public void write(int precision, double ...tmp){
         File fout = new File(filepath);
-        try(PrintWriter file = new PrintWriter( new FileWriter(filepath, true))){
+        try(PrintWriter file = new PrintWriter( new FileWriter(filepath, true))) {
 
             String template = "%1$." + Integer.toString(precision) + "f";
 
-            if(tmp.length < 0 || tmp.length > 4){
-                file.print("Лесом");
-            }else {
+            if (tmp.length == 2) {
                 file.println();
-                file.printf(template,tmp[0]);
+                file.printf("%d", tmp[0]);
+                file.print(":");
+                file.printf(template, tmp[1]);
+
+            } else if (tmp.length < 0 || tmp.length > 4) {
+                file.print("Лесом");
+            } else {
+                file.println();
+                file.printf(template, tmp[0]);
                 file.print("  |  ");
 
-                file.printf(template,tmp[1]);
+                file.printf(template, tmp[1]);
                 file.print("  |  ");
 
-                file.printf(template,tmp[2]);
+                file.printf(template, tmp[2]);
 
-                if(tmp.length == 4){
+                if (tmp.length == 4) {
                     file.print("  |  ");
                     file.print(tmp[3]);
                 }
             }
+
             file.println();
             file.print("----------------------------------------------------------------------------------------------------");
         }catch (IOException exp){

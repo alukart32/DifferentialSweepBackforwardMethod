@@ -13,36 +13,53 @@ public class StringParser {
         return count;
     }
 
-    public double[] getData(String str)throws NumberFormatException{
+    public double[] getData(String str, boolean line)throws NumberFormatException{
         int amount = getAmountOfElementOfStr(str);
-
-        // A B a b N
-        if(amount != (5)) {
-            throw new NumberFormatException();
-        }
-
         double[] arr = new double[amount];
 
         StringBuffer tmp = new StringBuffer("");
 
-        int i = 0;
-        int j = 0;
-        while (i < str.length() && j < amount){
-            if(str.charAt(i) != ' ')
-                tmp.append(str.charAt(i));
-            else {
-                arr[j] = Double.parseDouble(tmp.toString());
-                j++;
-                tmp.delete(0, tmp.length());
+        if(!line) {
+            // A B a b N
+            if (amount != (5)) {
+                throw new NumberFormatException();
             }
-            i++;
+
+            int i = 0;
+            int j = 0;
+            while (i < str.length() && j < amount) {
+                if (str.charAt(i) != '|')
+                    tmp.append(str.charAt(i));
+                else {
+                    arr[j] = Double.parseDouble(tmp.toString());
+                    j++;
+                    tmp.delete(0, tmp.length());
+                }
+                i++;
+            }
         }
+        else {
+            String d = new String();
 
-        if(arr[3] == arr[0]){}
-        else
-            if(arr[3] == arr[1]){}
-            else throw new NumberFormatException();
+            int i = 0;
+            int j = 0;
+            while (i < str.length() && j < amount) {
+                if (str.charAt(i) != '|')
+                    tmp.append(str.charAt(i));
+                else {
+                    int k = 0;
+                    while (tmp.charAt(k) != ':')
+                        k++;
 
+                    d = tmp.substring(k+2, tmp.length());
+
+                    arr[j] = Double.parseDouble(d);
+                    j++;
+                    tmp.delete(0, tmp.length());
+                }
+                i++;
+            }
+        }
         return arr;
     }
 }

@@ -9,7 +9,7 @@ public class FileData {
     private double
                     A, B,
                     // коэф. граничных условий
-                    a, b,
+                    alpha, beta,
                     // кол-во точек в сетке
                     N,
                     h;
@@ -19,7 +19,7 @@ public class FileData {
     boolean direction = false;
 
     public void setData(){
-        FileRead fileRead = new FileRead();
+        FileRead fileRead = new FileRead("E:\\Programming\\Курс_3\\Numeric_Methods\\lab3\\src\\main\\resources\\input.txt");
         double[] arr = fileRead.readData();
 
         if(arr == null)
@@ -27,10 +27,10 @@ public class FileData {
 
         A = arr[0];
         B = arr[1];
-        a = arr[2];
-        b = arr[3];
+        alpha = arr[2];
+        beta = arr[3];
 
-        if(Math.pow(a, 2) + Math.pow(b, 2) < 1)
+        if(Math.pow(alpha, 2) + Math.pow(beta, 2) < 1)
             throw new ApiException("Invalid alpha or beta!!!");
 
         N = arr[4];

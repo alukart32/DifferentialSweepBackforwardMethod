@@ -6,8 +6,22 @@ import java.io.*;
 
 public class FileRead {
     // pathname of input files
-    final private String filepath = "";
+    private String filepath;
+    private boolean line;
     private PrintWriter pw = new PrintWriter(System.out, true);
+
+    public FileRead() {
+    }
+
+    public FileRead(String filepath) {
+        this.filepath = filepath;
+        this.line = false;
+    }
+
+    public FileRead(String filepath, boolean line) {
+        this.filepath = filepath;
+        this.line = line;
+    }
 
     public double[] readData(){
         double[] data = null;
@@ -22,12 +36,12 @@ public class FileRead {
             String str = fin.readLine();
             while (str != null){
                 strData.append(str);
-                strData.append(' ');
+                strData.append('|');
                 str = fin.readLine();
             }
             // string parsing to get these values
             StringParser stringParser = new StringParser();
-            data = stringParser.getData(new String(strData));
+            data = stringParser.getData(new String(strData), line);
             return data;
         }catch(IOException e){
             pw.println("File reading handling error!");
