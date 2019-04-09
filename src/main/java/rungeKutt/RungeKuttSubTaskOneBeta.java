@@ -3,20 +3,19 @@ package rungeKutt;
 import data.DataForMethod;
 import filestream.FileRead;
 import filestream.FileWrite;
-import funcs.Func;
 
-public class RungeKuttSubTaskOneAlpha extends RungeMethod {
-
-    private FileWrite fileWrite = new FileWrite("E:\\Programming\\Курс_3\\Numeric_Methods\\lab3\\src\\main\\resources\\alpha.txt");
-     /**
+public class RungeKuttSubTaskOneBeta extends RungeMethod {
+    double[] alphaX;
+    private FileRead fileRead = new FileRead("E:\\Programming\\Курс_3\\Numeric_Methods\\lab3\\src\\main\\resources\\alpha.txt", true);
+    /**
      * Тип задачи Коши (alpha, beta); (phi, psi)
      */
     boolean type;
 
-    public RungeKuttSubTaskOneAlpha() {
+    public RungeKuttSubTaskOneBeta() {
     }
 
-    public RungeKuttSubTaskOneAlpha(DataForMethod dataForMethod, boolean type) {
+    public RungeKuttSubTaskOneBeta(DataForMethod dataForMethod, boolean type) {
         super(dataForMethod);
     }
 
