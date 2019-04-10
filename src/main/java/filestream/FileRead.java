@@ -32,7 +32,7 @@ public class FileRead {
         ){
             // temp string to hold all data from file to parse into double
             StringBuffer strData = new StringBuffer("");
-            // reading values from file and save them in a string
+            // reading values from file and save them in alpha string
             String str = fin.readLine();
             while (str != null){
                 strData.append(str);

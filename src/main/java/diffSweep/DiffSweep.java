@@ -13,15 +13,23 @@ public class DiffSweep {
 
     private FileData data;
 
-    private double gammaEdgeCondOne;
-    private double gammaEdgeCondTwo;
-    private double gammaEdgeCondThree;
-
-    private double alpaInA;
-    private double betaInA;
+    private double
+                gammaEdgeCondOne,
+                gammaEdgeCondTwo,
+                gammaEdgeCondThree;
 
     private double
-                    a, b;
+                alphaInA,
+                betaInA;
+
+    private double
+                alpha,
+                beta;
+
+    private double
+                y,
+                yDiff;
+
     /**
      * Функции в системе
       */
@@ -39,8 +47,8 @@ public class DiffSweep {
         gammaEdgeCondOne = 0;
         gammaEdgeCondTwo = 5;
 
-        a = data.getAlpha();
-        b = data.getBeta();
+        alpha = data.getAlpha();
+        beta = data.getBeta();
 
         p = (x,y) -> x+1;
         q = (x,y) -> 1;
@@ -59,13 +67,13 @@ public class DiffSweep {
      *
      *  -- гран. условия --
      *
-     *  ay'(b) + by(b) = gammaEdgeCondTwo
-     *  y(a) = gammaEdgeCondOne
+     *  ay'(beta) + by(beta) = gammaEdgeCondTwo
+     *  y(alpha) = gammaEdgeCondOne
      *
      *
-     *  x in [ a,b ]
+     *  x in [ alpha,beta ]
      *
-     *  a, b, gamma >= 0
+     *  alpha, beta, gamma >= 0
      **/
 
     /**
@@ -74,22 +82,22 @@ public class DiffSweep {
      * коэф. из данной гран. условия
      * a1, b1, gamma1, a1^ + b1^2 > 0
      *
-     * a'(x) = q(x) - a^2/p(x)
-     * a(c) = -p(c)b1/a1
+     * alpha'(x) = q(x) - alpha^2/p(x)
+     * alpha(c) = -p(c)b1/a1
      *
-     * b'(x) = f(x) - a(x)b(x)/p(x)
-     * b(c) = - p(c)gamma1/a1
+     * beta'(x) = f(x) - alpha(x)beta(x)/p(x)
+     * beta(c) = - p(c)gamma1/a1
      *
      *
      * решаем задачи Коши одновременно
      *
      * @return
-     *          [a(A), b(A)]
+     *          [alpha(A), beta(A)]
      */
     private double[] transferEdgeConditionAlpha(){
         int n = (int)data.getN();
-        double[] alpha = new double[n];
-        double[] beta = new double[n];
+        double[] alpha = new double[n+1];
+        double[] beta = new double[n+1];
 
         DataForMethod dataForMethod = new DataForMethod(data.getA(), data.getB(),
                                                         data.getAlpha(), data.getBeta(), n,
@@ -100,7 +108,7 @@ public class DiffSweep {
         method = new RungeKuttSubTaskOneBeta(dataForMethod, gammaEdgeCondTwo);
         beta = ((RungeKuttSubTaskOneBeta) method).solve(alpha);
 
-        double[] arr = {alpha[n-1], beta[n-1]};
+        double[] arr = {alpha[n], beta[n]};
         return arr;
     }
 
@@ -116,17 +124,17 @@ public class DiffSweep {
 
     private void sweep(){
         // [0] = alpha(A), [1] = beta(A)
-        double[] coeff;
+        double[] coeff = null;
         /**
-         * Необходимо в зависимости от a != 0 или b != 0 сделать
-         * перенос гран. условия (из точки B в A), решая задачу Коши (необходимо найти значение a(A), b(A))
+         * Необходимо в зависимости от alpha != 0 или beta != 0 сделать
+         * перенос гран. условия (из точки B в A), решая задачу Коши (необходимо найти значение alpha(A), beta(A))
          *
-         * Если и a!=0, и b!=0, то выбираем любую задачу Коши для этого.
+         * Если и alpha!=0, и beta!=0, то выбираем любую задачу Коши для этого.
          */
-        if(a!=0)
+        if(alpha !=0)
             coeff = transferEdgeConditionAlpha();
             else
-                if(b!=0)
+                if(beta !=0)
                    coeff = transferEdgeConditionBeta();
 
         /**
@@ -146,8 +154,17 @@ public class DiffSweep {
          * 3) delta = 0 и deltaY == deltaYOne == 0 -> 00 мн-во решений
          *
          */
+        alphaInA = coeff[0];
+        betaInA = coeff[1];
+        // определитель системы
+        double delta = p.func(alphaInA,0);
 
-
+        if(delta == 0){
+            // смотрим что к чему
+        }
+        // иначе единственное решение
+        yDiff = (betaInA - gammaEdgeCondOne*alphaInA)/delta;
+        y = (p.func(alphaInA,0))/delta;
 
         /**
          * Теперь построили задачу, которую и будем решать

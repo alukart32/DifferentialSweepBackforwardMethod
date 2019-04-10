@@ -44,10 +44,4 @@ public abstract class RungeMethod {
         this.h = diffDirect ?(B - A)/N:-(B - A)/N;
         this.x = diffDirect ? A : B;
     }
-
-    protected double f(double x, double y){
-        return 1;
-    }
-
-    protected  double formula(double x, double y, double h){return 1;}
 }

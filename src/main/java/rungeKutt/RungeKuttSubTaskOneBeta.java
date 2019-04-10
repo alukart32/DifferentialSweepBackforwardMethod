@@ -23,13 +23,12 @@ public class RungeKuttSubTaskOneBeta extends RungeMethod {
     }
 
     public double[] solve(double[] alpha) {
-        double[] betaX = new double[N];
+        double[] betaX = new double[N+1];
 
-        for (int i = 0; i < N ; i++) {
+        for (int i = 0; i <= N ; i++) {
             y = formula(x + i*h, y, alpha[i], h);
             betaX[i] = y;
         }
-
         return betaX;
     }
 
@@ -37,8 +36,8 @@ public class RungeKuttSubTaskOneBeta extends RungeMethod {
      * funcs[0] = p(x, y)
      * funcs[2] = f(x, y)
      */
-    protected double f(double x, double y, double alpha){
-        return funcs[2].func(x,y) - y*alpha/funcs[0].func(x, y);
+    private double f(double x, double y, double alpha){
+        return funcs[2].func(x,y) - (y*alpha)/funcs[0].func(x, y);
     }
 
     private double formula(double x, double y, double alpha, double h){

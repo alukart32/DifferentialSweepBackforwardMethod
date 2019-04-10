@@ -20,7 +20,7 @@ public class StringParser {
         StringBuffer tmp = new StringBuffer("");
 
         if(!line) {
-            // A B a b N
+            // A B alpha beta N
             if (amount != (5)) {
                 throw new NumberFormatException();
             }
