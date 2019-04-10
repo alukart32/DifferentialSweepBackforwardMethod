@@ -28,7 +28,7 @@ public class StringParser {
             int i = 0;
             int j = 0;
             while (i < str.length() && j < amount) {
-                if (str.charAt(i) != '|')
+                if (str.charAt(i) != ' ')
                     tmp.append(str.charAt(i));
                 else {
                     arr[j] = Double.parseDouble(tmp.toString());

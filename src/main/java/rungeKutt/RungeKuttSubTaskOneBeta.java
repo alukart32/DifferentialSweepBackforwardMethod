@@ -1,12 +1,11 @@
 package rungeKutt;
 
 import data.DataForMethod;
-import filestream.FileRead;
-import filestream.FileWrite;
 
 public class RungeKuttSubTaskOneBeta extends RungeMethod {
     double[] alphaX;
-    private FileRead fileRead = new FileRead("E:\\Programming\\Курс_3\\Numeric_Methods\\lab3\\src\\main\\resources\\alpha.txt", true);
+
+    double gamma;
     /**
      * Тип задачи Коши (alpha, beta); (phi, psi)
      */
@@ -15,27 +14,36 @@ public class RungeKuttSubTaskOneBeta extends RungeMethod {
     public RungeKuttSubTaskOneBeta() {
     }
 
-    public RungeKuttSubTaskOneBeta(DataForMethod dataForMethod, boolean type) {
+    public RungeKuttSubTaskOneBeta(DataForMethod dataForMethod, double gamma) {
         super(dataForMethod);
+        // коэф. из граничного условия
+        gamma = gamma;
+        // начальное краевое условие
+        y = - (gamma/alpha*funcs[0].func(B, 0));
     }
 
-    @Override
-    public void solve() {
+    public double[] solve(double[] alpha) {
+        double[] betaX = new double[N];
 
+        for (int i = 0; i < N ; i++) {
+            y = formula(x + i*h, y, alpha[i], h);
+            betaX[i] = y;
+        }
+
+        return betaX;
     }
 
     /**
      * funcs[0] = p(x, y)
-     * funcs[1] = q(x, y)
+     * funcs[2] = f(x, y)
      */
-    private double f(double x, double y){
-        return funcs[1].func(x,y) - (y*y)/funcs[0].func(x, y);
+    protected double f(double x, double y, double alpha){
+        return funcs[2].func(x,y) - y*alpha/funcs[0].func(x, y);
     }
 
-    @Override
-    protected double formula(double x, double y, double h) {
-        double k1 = h * f(x, y);
-        double k2 = h * f(x + 0.5 * h, y + 0.5 * k1);
+    private double formula(double x, double y, double alpha, double h){
+        double k1 = h * f(x, y, alpha);
+        double k2 = h * f(x + 0.5 * h, y + 0.5 * k1, alpha);
         double result = y + k2;
         return result;
     }

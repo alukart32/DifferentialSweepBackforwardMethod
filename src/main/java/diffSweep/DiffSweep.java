@@ -5,17 +5,17 @@ import data.FileData;
 import funcs.Func;
 import lombok.Data;
 import rungeKutt.RungeKuttSubTaskOneAlpha;
+import rungeKutt.RungeKuttSubTaskOneBeta;
 import rungeKutt.RungeMethod;
 
 @Data
 public class DiffSweep {
 
     private FileData data;
-    private RungeMethod rungeMethod;
 
-    private double gammaOne;
-    private double gammaTwo;
-    private double gammaThree;
+    private double gammaEdgeCondOne;
+    private double gammaEdgeCondTwo;
+    private double gammaEdgeCondThree;
 
     private double alpaInA;
     private double betaInA;
@@ -27,27 +27,29 @@ public class DiffSweep {
       */
     private Func p;
     private Func q;
+    private Func f;
     Func[] funcs;
 
-    public DiffSweep(FileData data, RungeMethod rungeMethod) {
+    public DiffSweep(FileData data) {
         this.data = data;
-        this.rungeMethod = rungeMethod;
         setConfigData();
     }
 
     private void setConfigData(){
-        gammaOne = 0;
-        gammaTwo = 5;
+        gammaEdgeCondOne = 0;
+        gammaEdgeCondTwo = 5;
 
         a = data.getAlpha();
         b = data.getBeta();
 
-        p = (x,y) -> 1;
+        p = (x,y) -> x+1;
         q = (x,y) -> 1;
+        f = (x,y) -> -x*x*x*x+16*x*x*x+12*x*x;
 
-        funcs = new Func[2];
+        funcs = new Func[3];
         funcs[0] = p;
         funcs[1] = q;
+        funcs[2] = f;
     }
 
     /**
@@ -57,8 +59,8 @@ public class DiffSweep {
      *
      *  -- гран. условия --
      *
-     *  ay'(b) + by(b) = gammaTwo
-     *  y(a) = gammaOne
+     *  ay'(b) + by(b) = gammaEdgeCondTwo
+     *  y(a) = gammaEdgeCondOne
      *
      *
      *  x in [ a,b ]
@@ -85,16 +87,21 @@ public class DiffSweep {
      *          [a(A), b(A)]
      */
     private double[] transferEdgeConditionAlpha(){
-        double aI = 0;
-        double bI = 0;
+        int n = (int)data.getN();
+        double[] alpha = new double[n];
+        double[] beta = new double[n];
 
         DataForMethod dataForMethod = new DataForMethod(data.getA(), data.getB(),
-                                                        data.getAlpha(), data.getBeta(), data.getN(),
-                                                        false, false,
-                                                        funcs);
-        RungeMethod method = new RungeKuttSubTaskOneAlpha(dataForMethod, true);
+                                                        data.getAlpha(), data.getBeta(), n,
+                                                        false, funcs);
+        RungeMethod method = new RungeKuttSubTaskOneAlpha(dataForMethod);
+        alpha = ((RungeKuttSubTaskOneAlpha) method).solve();
 
-        return null;
+        method = new RungeKuttSubTaskOneBeta(dataForMethod, gammaEdgeCondTwo);
+        beta = ((RungeKuttSubTaskOneBeta) method).solve(alpha);
+
+        double[] arr = {alpha[n-1], beta[n-1]};
+        return arr;
     }
 
     /**
@@ -108,6 +115,8 @@ public class DiffSweep {
     }
 
     private void sweep(){
+        // [0] = alpha(A), [1] = beta(A)
+        double[] coeff;
         /**
          * Необходимо в зависимости от a != 0 или b != 0 сделать
          * перенос гран. условия (из точки B в A), решая задачу Коши (необходимо найти значение a(A), b(A))
@@ -115,16 +124,16 @@ public class DiffSweep {
          * Если и a!=0, и b!=0, то выбираем любую задачу Коши для этого.
          */
         if(a!=0)
-            transferEdgeConditionAlpha();
+            coeff = transferEdgeConditionAlpha();
             else
                 if(b!=0)
-                    transferEdgeConditionBeta();
+                   coeff = transferEdgeConditionBeta();
 
         /**
          * Необходимо понять а система СЛАУ
          *
-         * p(A)y'(A)=a(A)y(A) + b(A)
-         * y(A) = gammaOne
+         * p(A)y'(A)=alpha(A)y(A) + beta(A)
+         * y(A) = gammaEdgeCondOne
          *
          * имеет ли решение?
          *
@@ -138,7 +147,7 @@ public class DiffSweep {
          *
          */
 
-        // ...
+
 
         /**
          * Теперь построили задачу, которую и будем решать

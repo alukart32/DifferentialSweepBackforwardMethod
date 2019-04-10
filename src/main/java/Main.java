@@ -1,12 +1,10 @@
-package main.java;
-
 import data.FileData;
-import rungeKutt.RungeMethod;
+import diffSweep.DiffSweep;
 
 public class Main {
     public static void main(String ...args){
-        FileData fileData = new FileData();
-        RungeMethod rungeMethod = new RungeMethod(fileData);
-        rungeMethod.solve();
+        FileData data = new FileData();
+        DiffSweep diffSweep = new DiffSweep(data);
+        diffSweep.diffSweep();
     }
 }

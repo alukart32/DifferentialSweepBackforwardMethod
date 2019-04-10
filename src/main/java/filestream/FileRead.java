@@ -36,7 +36,7 @@ public class FileRead {
             String str = fin.readLine();
             while (str != null){
                 strData.append(str);
-                strData.append('|');
+                strData.append(' ');
                 str = fin.readLine();
             }
             // string parsing to get these values

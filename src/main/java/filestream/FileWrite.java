@@ -18,29 +18,29 @@ public class FileWrite {
 
     PrintWriter pw = new PrintWriter(System.out, true);
 
-    public void write(int precision, double ...tmp){
+    public void write(double ...tmp){
         File fout = new File(filepath);
         try(PrintWriter file = new PrintWriter( new FileWriter(filepath, true))) {
 
-            String template = "%1$." + Integer.toString(precision) + "f";
+            //String template = "%1$." + Integer.toString(precision) + "f";
 
             if (tmp.length == 2) {
                 file.println();
-                file.printf("%d", tmp[0]);
+                file.print(tmp[0]);
                 file.print(":");
-                file.printf(template, tmp[1]);
+                file.print(tmp[1]);
 
             } else if (tmp.length < 0 || tmp.length > 4) {
                 file.print("Лесом");
             } else {
                 file.println();
-                file.printf(template, tmp[0]);
+                file.print(tmp[0]);
                 file.print("  |  ");
 
-                file.printf(template, tmp[1]);
+                file.print(tmp[1]);
                 file.print("  |  ");
 
-                file.printf(template, tmp[2]);
+                file.print(tmp[2]);
 
                 if (tmp.length == 4) {
                     file.print("  |  ");

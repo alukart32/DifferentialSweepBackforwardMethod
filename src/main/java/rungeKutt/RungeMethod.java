@@ -1,7 +1,6 @@
 package rungeKutt;
 
 import data.DataForMethod;
-import filestream.FileWrite;
 import funcs.Func;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,19 +14,18 @@ public abstract class RungeMethod {
             y,
             // след. шаг
             h,
+            // коэф. в изначальном гран. условием
+            alpha,
+            beta,
             // отрезок
             A,
-            B,
+            B;
             // кол-во узлов
-            N;
+    int     N;
 
-    // true = B | A
-    // false = A | B
-    boolean direction;
-
-    // решение основной задачи Коши с выводом в файл
-    // или проежуточная задача
-    boolean stage;
+    // true = B -> A   h = -h
+    // false = A -> B  h = h
+    boolean diffDirect;
 
     // p, q определяемые в DiffSweep
     Func[] funcs;
@@ -38,20 +36,18 @@ public abstract class RungeMethod {
         this.A = dataForMethod.getA();
         this.B = dataForMethod.getB();
         this.N = dataForMethod.getN();
-        this.h = (B - A)/N;
-        this.direction = dataForMethod.isDirection();
-        this.stage = dataForMethod.isStage();
+        this.alpha = dataForMethod.getAlpha();
+        this.beta = dataForMethod.getBeta();
 
         this.funcs = dataForMethod.getFunc();
 
-        if (direction)
-            h = -h;
-
-        this.x = stage? A: B;
-
+        this.h = diffDirect ?(B - A)/N:-(B - A)/N;
+        this.x = diffDirect ? A : B;
     }
 
-    public abstract void solve();
+    protected double f(double x, double y){
+        return 1;
+    }
 
-    protected abstract double formula( double x, double y, double h);
+    protected  double formula(double x, double y, double h){return 1;}
 }
