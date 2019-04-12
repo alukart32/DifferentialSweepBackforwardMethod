@@ -41,7 +41,7 @@ public abstract class RungeMethod {
 
         this.funcs = dataForMethod.getFunc();
 
-        this.h = diffDirect ?(B - A)/N:-(B - A)/N;
-        this.x = diffDirect ? A : B;
+        this.h = dataForMethod.isDiffDirect()?(B - A)/N:-(B - A)/N;
+        this.x = dataForMethod.isDiffDirect() ? A : B;
     }
 }

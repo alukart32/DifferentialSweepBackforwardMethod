@@ -4,9 +4,7 @@ import data.DataForMethod;
 import data.FileData;
 import funcs.Func;
 import lombok.Data;
-import rungeKutt.RungeKuttSubTaskOneAlpha;
-import rungeKutt.RungeKuttSubTaskOneBeta;
-import rungeKutt.RungeMethod;
+import rungeKutt.*;
 
 @Data
 public class DiffSweep {
@@ -15,9 +13,7 @@ public class DiffSweep {
 
     private double
                 gammaEdgeCondOne,
-                gammaEdgeCondTwo,
-                gammaEdgeCondThree;
-
+                gammaEdgeCondTwo;
     private double
                 alphaInA,
                 betaInA;
@@ -27,8 +23,9 @@ public class DiffSweep {
                 beta;
 
     private double
-                y,
-                yDiff;
+                // начальные условия для основной задачи Коши
+                yInA,
+                yDiffInA;
 
     /**
      * Функции в системе
@@ -44,9 +41,12 @@ public class DiffSweep {
     }
 
     private void setConfigData(){
+        // yInA(a)= ...
         gammaEdgeCondOne = 0;
+        // alpha yInA'(B) + beta*yInA(B)=...
         gammaEdgeCondTwo = 5;
-
+        
+        // alpha yInA'(B) + beta*yInA(B)=...
         alpha = data.getAlpha();
         beta = data.getBeta();
 
@@ -63,12 +63,12 @@ public class DiffSweep {
     /**
      *  Дифф. прогонка для самосопряж. задачи вида
      *
-     *  (p(x)y')' - q(x)y = f(x)
+     *  (p(x)yInA')' - q(x)yInA = f(x)
      *
      *  -- гран. условия --
      *
      *  ay'(beta) + by(beta) = gammaEdgeCondTwo
-     *  y(alpha) = gammaEdgeCondOne
+     *  yInA(alpha) = gammaEdgeCondOne
      *
      *
      *  x in [ alpha,beta ]
@@ -96,19 +96,21 @@ public class DiffSweep {
      */
     private double[] transferEdgeConditionAlpha(){
         int n = (int)data.getN();
-        double[] alpha = new double[n+1];
+        /*double[] alpha = new double[n+1];
         double[] beta = new double[n+1];
-
+*/
         DataForMethod dataForMethod = new DataForMethod(data.getA(), data.getB(),
                                                         data.getAlpha(), data.getBeta(), n,
                                                         false, funcs);
-        RungeMethod method = new RungeKuttSubTaskOneAlpha(dataForMethod);
+        /*RungeMethod method = new RungeKuttSubTaskOneAlpha(dataForMethod);
         alpha = ((RungeKuttSubTaskOneAlpha) method).solve();
 
         method = new RungeKuttSubTaskOneBeta(dataForMethod, gammaEdgeCondTwo);
         beta = ((RungeKuttSubTaskOneBeta) method).solve(alpha);
+*/
+        RungeMethodAlphaBeta rungeMethodAlphaBeta = new RungeMethodAlphaBeta(dataForMethod, gammaEdgeCondTwo);
+        double[] arr = rungeMethodAlphaBeta.solve();
 
-        double[] arr = {alpha[n], beta[n]};
         return arr;
     }
 
@@ -140,8 +142,8 @@ public class DiffSweep {
         /**
          * Необходимо понять а система СЛАУ
          *
-         * p(A)y'(A)=alpha(A)y(A) + beta(A)
-         * y(A) = gammaEdgeCondOne
+         * p(A)yInA'(A)=alpha(A)yInA(A) + beta(A)
+         * yInA(A) = gammaEdgeCondOne
          *
          * имеет ли решение?
          *
@@ -161,15 +163,27 @@ public class DiffSweep {
 
         if(delta == 0){
             // смотрим что к чему
+            yDiffInA = (betaInA - gammaEdgeCondOne*alphaInA)/delta;
+            yInA = gammaEdgeCondOne;
+            if(yDiffInA !=0 & yInA !=0)
+                System.out.println("Пустое мн-во");
+            else
+                if(yDiffInA == 0 & yInA == 0)
+                    System.out.println("Бесчисленное мн-во решений");
         }
-        // иначе единственное решение
-        yDiff = (betaInA - gammaEdgeCondOne*alphaInA)/delta;
-        y = (p.func(alphaInA,0))/delta;
+        else {
+            // иначе единственное решение
+            yDiffInA = (betaInA - gammaEdgeCondOne * alphaInA) / delta;
+            yInA = gammaEdgeCondOne;
 
-        /**
-         * Теперь построили задачу, которую и будем решать
-         */
-
+            /**
+             * Теперь построили задачу, которую и будем решать
+             */
+            DataForMethod dataForMethod = new DataForMethod(data.getA(), data.getB(),
+                    data.getAlpha(), data.getBeta(), data.getN(), true, funcs);
+            RungeMethodMainPart rungeMethodMainPart = new RungeMethodMainPart(dataForMethod, yInA, yDiffInA);
+            rungeMethodMainPart.solve();
+        }
     }
 
     public void diffSweep(){

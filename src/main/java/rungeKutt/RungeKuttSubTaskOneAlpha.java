@@ -23,8 +23,8 @@ public class RungeKuttSubTaskOneAlpha extends RungeMethod {
     }
 
     /**
-     * funcs[0] = p(x, y)
-     * funcs[1] = q(x, y)
+     * funcs[0] = p(x, yInA)
+     * funcs[1] = q(x, yInA)
      */
     private double f(double x, double y){
         return funcs[1].func(x,y) - (y*y)/funcs[0].func(x, y);

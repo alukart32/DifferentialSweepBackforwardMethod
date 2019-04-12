@@ -1,8 +1,11 @@
 package data;
 
 import funcs.Func;
+import lombok.Getter;
+import lombok.Setter;
 
-@lombok.Data
+@Getter
+@Setter
 public class DataForMethod {
     private double
             A, B,
@@ -13,7 +16,7 @@ public class DataForMethod {
 
     // false - слево |  направо
     // true - справо | налево
-    boolean diffDirect = false;
+    boolean diffDirect;
 
     // alpha' = функция
     Func[] func;
@@ -24,7 +27,7 @@ public class DataForMethod {
         this.alpha = alpha;
         this.beta = beta;
         N = n;
-        this.diffDirect = this.diffDirect;
+        this.diffDirect = diffDirect;
         this.func = func;
     }
 }

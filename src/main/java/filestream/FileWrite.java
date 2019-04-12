@@ -24,11 +24,15 @@ public class FileWrite {
 
             //String template = "%1$." + Integer.toString(precision) + "f";
 
-            if (tmp.length == 2) {
+            if (tmp.length == 3) {
                 file.println();
+                file.print("x: ");
                 file.print(tmp[0]);
-                file.print(":");
+                file.print("| y: ");
                 file.print(tmp[1]);
+                file.print("| v: ");
+                file.print(tmp[2]);
+
 
             } else if (tmp.length < 0 || tmp.length > 4) {
                 file.print("Лесом");

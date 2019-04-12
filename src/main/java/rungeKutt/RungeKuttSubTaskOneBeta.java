@@ -17,7 +17,7 @@ public class RungeKuttSubTaskOneBeta extends RungeMethod {
     public RungeKuttSubTaskOneBeta(DataForMethod dataForMethod, double gamma) {
         super(dataForMethod);
         // коэф. из граничного условия
-        gamma = gamma;
+        this.gamma = gamma;
         // начальное краевое условие
         y = - (gamma/alpha*funcs[0].func(B, 0));
     }
@@ -33,8 +33,8 @@ public class RungeKuttSubTaskOneBeta extends RungeMethod {
     }
 
     /**
-     * funcs[0] = p(x, y)
-     * funcs[2] = f(x, y)
+     * funcs[0] = p(x, yInA)
+     * funcs[2] = f(x, yInA)
      */
     private double f(double x, double y, double alpha){
         return funcs[2].func(x,y) - (y*alpha)/funcs[0].func(x, y);
