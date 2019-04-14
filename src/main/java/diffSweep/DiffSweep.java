@@ -48,7 +48,7 @@ public class DiffSweep {
         // yInA(a)= ...
         gammaEdgeCondOne = 0;
         // alpha yInA'(B) + beta*yInA(B)=...
-        gammaEdgeCondTwo = 5;
+        gammaEdgeCondTwo = 3;
         
         // alpha yInA'(B) + beta*yInA(B)=...
         alpha = data.getAlpha();
@@ -56,7 +56,8 @@ public class DiffSweep {
 
         p = (x,y) -> x+1;
         q = (x,y) -> 1;
-        f = (x,y) -> -x*x*x*x+16*x*x*x+12*x*x;
+        //f = (x,y) -> -x*x*x*x+16*x*x*x+12*x*x;
+        f = (x,y) -> -x*x+4*x+2;
 
         funcs = new Func[3];
         funcs[0] = p;

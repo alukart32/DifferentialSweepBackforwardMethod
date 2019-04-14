@@ -37,7 +37,6 @@ public class RungeMethodPhiPsi extends RungeMethod {
         return points;
     }
 
-
     /**
      * funcs[0] = p(x, yInA)
      * funcs[1] = q(x, yInA)
