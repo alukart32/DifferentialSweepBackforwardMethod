@@ -4,9 +4,6 @@ import data.DataForMethod;
 import filestream.FileWrite;
 import funcs.Func;
 
-import java.io.FileWriter;
-import java.util.concurrent.Future;
-
 public class RungeMethodMainPart extends RungeMethod {
     FileWrite fileWrite = new FileWrite("E:\\Programming\\Курс_3\\Numeric_Methods\\lab3\\src\\main\\resources\\output.txt");
     private double
@@ -51,20 +48,19 @@ public class RungeMethodMainPart extends RungeMethod {
         double resultY = y + k2;
         double resultV = v + l2;
 
-        double[] points = new double[]{resultY, resultV, 0};
+        double[] points = new double[]{x, resultY, resultV};
         return points;
     }
 
     public void solve(){
-        // points[0] - y
-        // points[1] - v
+        // points[0] - x
+        // points[1] - y
+        // points[2] - v
         double[] points = new double[3];
         for (int i = 0; i <= N ; i++) {
             points = formula(x+i*h, yDiffInA, yInA, h);
-            yDiffInA = points[0];
-            yInA = points[1];
-            points[2] = x+i*h;
-
+            yInA = points[2];
+            yDiffInA = points[1];
             fileWrite.write(points);
         }
     }

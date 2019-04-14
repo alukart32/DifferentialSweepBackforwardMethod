@@ -16,11 +16,15 @@ public class DiffSweep {
                 gammaEdgeCondTwo;
     private double
                 alphaInA,
-                betaInA;
+                betaInA,
+                phiInA,
+                psiInA;
 
     private double
                 alpha,
-                beta;
+                beta,
+                phi,
+                psi;
 
     private double
                 // начальные условия для основной задачи Коши
@@ -95,19 +99,10 @@ public class DiffSweep {
      *          [alpha(A), beta(A)]
      */
     private double[] transferEdgeConditionAlpha(){
-        int n = (int)data.getN();
-        /*double[] alpha = new double[n+1];
-        double[] beta = new double[n+1];
-*/
         DataForMethod dataForMethod = new DataForMethod(data.getA(), data.getB(),
-                                                        data.getAlpha(), data.getBeta(), n,
+                                                        data.getAlpha(), data.getBeta(), data.getN(),
                                                         false, funcs);
-        /*RungeMethod method = new RungeKuttSubTaskOneAlpha(dataForMethod);
-        alpha = ((RungeKuttSubTaskOneAlpha) method).solve();
 
-        method = new RungeKuttSubTaskOneBeta(dataForMethod, gammaEdgeCondTwo);
-        beta = ((RungeKuttSubTaskOneBeta) method).solve(alpha);
-*/
         RungeMethodAlphaBeta rungeMethodAlphaBeta = new RungeMethodAlphaBeta(dataForMethod, gammaEdgeCondTwo);
         double[] arr = rungeMethodAlphaBeta.solve();
 
@@ -121,7 +116,14 @@ public class DiffSweep {
      *          [phi(A), psi(A)]
      */
     private double[] transferEdgeConditionBeta(){
-        return null;
+        DataForMethod dataForMethod = new DataForMethod(data.getA(), data.getB(),
+                data.getAlpha(), data.getBeta(), data.getN(),
+                false, funcs);
+
+        RungeMethodPhiPsi rungeMethodPhiPsi = new RungeMethodPhiPsi(dataForMethod, gammaEdgeCondTwo);
+        double[] arr = rungeMethodPhiPsi.solve();
+
+        return arr;
     }
 
     private void sweep(){
@@ -133,56 +135,95 @@ public class DiffSweep {
          *
          * Если и alpha!=0, и beta!=0, то выбираем любую задачу Коши для этого.
          */
-        if(alpha !=0)
+        boolean hasSolution = false;
+
+        if(alpha !=0) {
+            /**
+             * Необходимо понять а система СЛАУ
+             *
+             * p(A)yInA'(A)=alpha(A)yInA(A) + beta(A)
+             * yInA(A) = gammaEdgeCondOne
+             *
+             * имеет ли решение?
+             *
+             * По правилу Краммера необходимо сделать (на листочке)
+             *
+             *  delta = определитель системы
+             *
+             * 1) delta != 0 -> единств. решение
+             * 2) delta = 0 и deltaY != 0, deltaYOne != 0 -> нет решения
+             * 3) delta = 0 и deltaY == deltaYOne == 0 -> 00 мн-во решений
+             *
+             */
             coeff = transferEdgeConditionAlpha();
-            else
-                if(beta !=0)
-                   coeff = transferEdgeConditionBeta();
 
-        /**
-         * Необходимо понять а система СЛАУ
-         *
-         * p(A)yInA'(A)=alpha(A)yInA(A) + beta(A)
-         * yInA(A) = gammaEdgeCondOne
-         *
-         * имеет ли решение?
-         *
-         * По правилу Краммера необходимо сделать (на листочке)
-         *
-         *  delta = определитель системы
-         *
-         * 1) delta != 0 -> единств. решение
-         * 2) delta = 0 и deltaY != 0, deltaYOne != 0 -> нет решения
-         * 3) delta = 0 и deltaY == deltaYOne == 0 -> 00 мн-во решений
-         *
-         */
-        alphaInA = coeff[0];
-        betaInA = coeff[1];
-        // определитель системы
-        double delta = p.func(alphaInA,0);
+            alphaInA = coeff[0];
+            betaInA = coeff[1];
+            // определитель системы
+            double delta = p.func(alphaInA, 0);
 
-        if(delta == 0){
-            // смотрим что к чему
-            yDiffInA = (betaInA - gammaEdgeCondOne*alphaInA)/delta;
-            yInA = gammaEdgeCondOne;
-            if(yDiffInA !=0 & yInA !=0)
-                System.out.println("Пустое мн-во");
-            else
-                if(yDiffInA == 0 & yInA == 0)
-                    System.out.println("Бесчисленное мн-во решений");
-        }
-        else {
-            // иначе единственное решение
             yDiffInA = (betaInA - gammaEdgeCondOne * alphaInA) / delta;
             yInA = gammaEdgeCondOne;
+            hasSolution = isHasSolution(delta);
+        }
+        else
+           if(beta !=0) {
+               /**
+                * Необходимо понять а система СЛАУ
+                *
+                * phiInA(A)p(A)yInA'(A) - yInA(A) = psi(A)
+                * yInA(A) = gammaEdgeCondOne
+                *
+                * имеет ли решение?
+                *
+                * По правилу Краммера необходимо сделать (на листочке)
+                *
+                *  delta = определитель системы
+                *
+                * 1) delta != 0 -> единств. решение
+                * 2) delta = 0 и deltaY != 0, deltaYOne != 0 -> нет решения
+                * 3) delta = 0 и deltaY == deltaYOne == 0 -> 00 мн-во решений
+                *
+                */
+               coeff = transferEdgeConditionBeta();
+
+               phiInA = coeff[0];
+               psiInA = coeff[1];
+               // определитель системы
+               double delta = phiInA*p.func(alphaInA, 0);
+
+               yDiffInA = (psiInA + gammaEdgeCondOne) / delta;
+               yInA = gammaEdgeCondOne;
+               hasSolution = isHasSolution(delta);
+           }
+
+
+            //----------------------------------------------------------------------------------------------------------
+
 
             /**
              * Теперь построили задачу, которую и будем решать
              */
+            if(hasSolution){
+
             DataForMethod dataForMethod = new DataForMethod(data.getA(), data.getB(),
                     data.getAlpha(), data.getBeta(), data.getN(), true, funcs);
             RungeMethodMainPart rungeMethodMainPart = new RungeMethodMainPart(dataForMethod, yInA, yDiffInA);
             rungeMethodMainPart.solve();
+            }
+    }
+
+    private boolean isHasSolution(double delta) {
+        if (delta == 0) {
+            // смотрим что к чему
+            if (yDiffInA != 0 & yInA != 0)
+                System.out.println("Пустое мн-во");
+            else if (yDiffInA == 0 & yInA == 0)
+                System.out.println("Бесчисленное мн-во решений");
+            return false;
+        } else {
+            // иначе единственное решение
+           return true;
         }
     }
 

@@ -28,30 +28,13 @@ public class FileWrite {
                 file.println();
                 file.print("x: ");
                 file.print(tmp[0]);
-                file.print("| y: ");
+                file.print(" | y: ");
                 file.print(tmp[1]);
-                file.print("| v: ");
+                file.print(" | v: ");
                 file.print(tmp[2]);
-
-
             } else if (tmp.length < 0 || tmp.length > 4) {
                 file.print("Лесом");
-            } else {
-                file.println();
-                file.print(tmp[0]);
-                file.print("  |  ");
-
-                file.print(tmp[1]);
-                file.print("  |  ");
-
-                file.print(tmp[2]);
-
-                if (tmp.length == 4) {
-                    file.print("  |  ");
-                    file.print(tmp[3]);
-                }
             }
-
             file.println();
             file.print("----------------------------------------------------------------------------------------------------");
         }catch (IOException exp){
