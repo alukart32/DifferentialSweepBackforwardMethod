@@ -11,7 +11,6 @@ public abstract class RungeMethod {
 
     double
             x,
-            y,
             // след. шаг
             h,
             // коэф. в изначальном гран. условием

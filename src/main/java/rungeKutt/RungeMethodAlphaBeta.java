@@ -12,38 +12,46 @@ public class RungeMethodAlphaBeta extends RungeMethod {
                     // gamma 1;
                     gamma;
 
-    public RungeMethodAlphaBeta() {
-    }
+    public RungeMethodAlphaBeta() {}
 
     public RungeMethodAlphaBeta(DataForMethod dataForMethod, double g) {
         super(dataForMethod);
         this.gamma = g;
-        yAlpha = - ((beta/alpha)*funcs[0].func(B, 0));
-        yBeta =  ((gamma/alpha)*funcs[0].func(B, 0));
+        this.yAlpha = -((beta*funcs[0].func(B, 0))/alpha);
+        this.yBeta =  ((gamma*funcs[0].func(B, 0)/alpha));
     }
 
     public double[] solve() {
         // alpha(A), beta(A)
         double[] points = new double[2];
+        double xk;
 
-        for (int i = 0; i <= N ; i++) {
-            yAlpha = formulaAlpha(x + i*h, yAlpha, h);
-            yBeta = formulaBeta(x + i*h, yBeta, yAlpha, h);
+        double[] beta = new double[N+1];
+        beta[0] = yBeta;
+
+        double[] alpha = new double[N+1];
+        alpha[0] = yAlpha;
+
+        xk = x - h;
+        for (int i = 0; i < N ; i++) {
+            xk += h;
+            // в точке x + h
+            alpha[i+1] = formulaAlpha(xk, alpha[i], h);
+            beta[i+1] = formulaBeta(xk, beta[i], alpha[i], h);
         }
 
-        points[0]= yAlpha;
-        points[1]= yBeta;
+        points[0]= alpha[N];
+        points[1]= beta[N];
 
         return points;
     }
-
 
     /**
      * funcs[0] = p(x, yInA)
      * funcs[1] = q(x, yInA)
      */
     private double fA(double x, double y){
-        return funcs[1].func(x,y) - (y*y)/funcs[0].func(x, y);
+        return funcs[1].func(x,y) - ((y*y)/funcs[0].func(x, y));
     }
 
     private double formulaAlpha(double x, double y, double h){
@@ -58,7 +66,7 @@ public class RungeMethodAlphaBeta extends RungeMethod {
      * funcs[2] = f(x, yInA)
      */
     private double fB(double x, double y, double alpha){
-        return funcs[2].func(x,y) - (y*alpha)/funcs[0].func(x, y);
+        return funcs[2].func(x,y) - ((y*alpha)/funcs[0].func(x, y));
     }
 
     private double formulaBeta(double x, double y, double alpha, double h){

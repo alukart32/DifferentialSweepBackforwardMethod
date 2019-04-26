@@ -9,9 +9,9 @@ public class RungeMethodMainPart extends RungeMethod {
     private double
                     // начальные условия
                     // v`
-                    yInA,
+            v,
                     // y`
-                    yDiffInA;
+                    y;
 
     // производная p
     Func pDiff = (x,y) -> 1;
@@ -20,10 +20,10 @@ public class RungeMethodMainPart extends RungeMethod {
     public RungeMethodMainPart() {
     }
 
-    public RungeMethodMainPart(DataForMethod dataForMethod, double yInA, double yDiffInA) {
+    public RungeMethodMainPart(DataForMethod dataForMethod, double v, double y) {
         super(dataForMethod);
-        this.yInA = yInA;
-        this.yDiffInA = yDiffInA;
+        this.v = v;
+        this.y = y;
         fileWrite.cleanFile();
     }
 
@@ -42,13 +42,13 @@ public class RungeMethodMainPart extends RungeMethod {
     private double[] formula(double x, double y, double v, double h){
         double k1 = h * f1(x, y, v);
         double l1 = h * f2(x, y, v);
-        double k2 = h * f1(x + 0.5 * h, y + 0.5 * k1, v + 0.5*l1);
-        double l2 = h * f2(x + 0.5 * h, y + 0.5 * k1, v + 0.5*l1);
+        double k2 = h * f1(x + 0.5 * h, y + 0.5 * k1, v + 0.5 * l1);
+        double l2 = h * f2(x + 0.5 * h, y + 0.5 * k1, v + 0.5 * l1);
 
         double resultY = y + k2;
         double resultV = v + l2;
 
-        double[] points = new double[]{x, resultY, resultV};
+        double[] points = new double[]{0, resultY, resultV, 0, 0};
         return points;
     }
 
@@ -56,12 +56,34 @@ public class RungeMethodMainPart extends RungeMethod {
         // points[0] - x
         // points[1] - y
         // points[2] - v
-        double[] points = new double[3];
-        for (int i = 0; i <= N ; i++) {
-            points = formula(x+i*h, yDiffInA, yInA, h);
-            yInA = points[2];
-            yDiffInA = points[1];
+        // points[3] - delta y
+        // points[4] - delta v
+        double[] points = new double[5];
+        double yd = 0;
+        double vd = 0;
+
+        double xk = x;
+        for (int i = 0; i < N+1 ; i++) {
             fileWrite.write(points);
+
+            xk = x + i*h;
+            points = formula(xk, y, v, h);
+
+            points[0] = xk+h;
+            v = points[2];
+            y = points[1];
+
+            yd = Math.abs(funcs[3].func((xk+h), y) - y);
+            points[3] = yd;
+
+            vd = Math.abs(funcs[4].func((xk+h), v) - v);
+            points[4] = vd;
+               /* yd = Math.abs(funcs[3].func((x + N*h), y) - y);
+                points[3] = yd;
+
+                vd = Math.abs(funcs[4].func((x + N*h), v) - v);
+                points[4] = vd;*/
+
         }
     }
 }

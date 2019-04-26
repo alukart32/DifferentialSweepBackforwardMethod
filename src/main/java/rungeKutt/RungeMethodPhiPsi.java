@@ -19,20 +19,28 @@ public class RungeMethodPhiPsi extends RungeMethod {
         super(dataForMethod);
         this.gamma = g;
         yPhi = - alpha/(beta*funcs[0].func(B, 0));
-        yPsi =  (gamma/beta);
+        yPsi = - (gamma/beta);
     }
 
     public double[] solve() {
         // phi(A), psi(A)
         double[] points = new double[2];
 
-        for (int i = 0; i <= N ; i++) {
-            yPhi = formulaPhi(x + i*h, yPhi, h);
-            yPsi = formulaPsi(x + i*h, yPsi, yPhi, h);
+        double[] phi = new double[N+1];
+        phi[0] = yPhi;
+
+        double[] psi = new double[N+1];
+        psi[0] = yPsi;
+
+        double xk = x - h;
+        for (int i = 0; i < N ; i++) {
+            xk+=h;
+            phi[i+1] = formulaPhi(xk, phi[i], h);
+            psi[i+1] = formulaPsi(xk, psi[i], phi[i], h);
         }
 
-        points[0]= yPhi;
-        points[1]= yPsi;
+        points[0]= phi[N];
+        points[1]= psi[N];
 
         return points;
     }
@@ -42,7 +50,7 @@ public class RungeMethodPhiPsi extends RungeMethod {
      * funcs[1] = q(x, yInA)
      */
     private double fPhi(double x, double y) {
-        return 1/funcs[0].func(x, y) - funcs[1].func(x, y)*y*y;
+        return (1.0/funcs[0].func(x, y)) - (y*y)*funcs[1].func(x, y);
     }
 
     private double formulaPhi(double x, double y, double h){
@@ -54,10 +62,11 @@ public class RungeMethodPhiPsi extends RungeMethod {
 
     /**
      * funcs[0] = p(x, yInA)
+     * funcs[1] = q(x, yInA)
      * funcs[2] = f(x, yInA)
      */
     private double fPsi(double x, double y, double phi){
-        return funcs[2].func(x, y)*phi - phi*funcs[1].func(x, y)*y;
+        return phi*funcs[2].func(x, y) - phi*y*funcs[1].func(x, y);
     }
 
     private double formulaPsi(double x, double y, double phi, double h){

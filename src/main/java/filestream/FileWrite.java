@@ -24,19 +24,24 @@ public class FileWrite {
 
             //String template = "%1$." + Integer.toString(precision) + "f";
 
-            if (tmp.length == 3) {
+            if (tmp.length == 5) {
                 file.println();
-                file.printf("%1$.4f: ", tmp[0]);
+                file.printf("x: %1$.4f: ", tmp[0]);
                 file.print("    | y: ");
                 file.print(tmp[1]);
                 file.print("    | v: ");
                 file.print(tmp[2]);
+                file.print("    | deltaY: ");
+                file.print(tmp[3]);
+                file.print("    | deltaV: ");
+                file.print(tmp[4]);
+
             } else if (tmp.length < 0 || tmp.length > 4) {
                 file.print("Лесом");
             }
             file.println();
-            file.print("----------------------------------------------------------------------------------------------------");
-        }catch (IOException exp){
+         /*   file.print("----------------------------------------------------------------------------------------------------");
+        */}catch (IOException exp){
             pw.println("Error!!!");
             pw.println("File writing handling problem!");
             exp.printStackTrace();

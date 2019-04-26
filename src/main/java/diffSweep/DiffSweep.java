@@ -37,32 +37,44 @@ public class DiffSweep {
     private Func p;
     private Func q;
     private Func f;
+    private Func y;
+    private Func v;
     Func[] funcs;
 
     public DiffSweep(FileData data) {
         this.data = data;
+        setFuncs();
         setConfigData();
     }
 
     private void setConfigData(){
-        // yInA(a)= ...
-        gammaEdgeCondOne = 0;
-        // alpha yInA'(B) + beta*yInA(B)=...
-        gammaEdgeCondTwo = 3;
-        
         // alpha yInA'(B) + beta*yInA(B)=...
         alpha = data.getAlpha();
         beta = data.getBeta();
 
+        // yInA(a)= ...
+        gammaEdgeCondOne = y.func(data.getA(), 0);
+        // alpha yInA'(B) + beta*yInA(B)=...
+        gammaEdgeCondTwo = alpha*v.func(data.getB(),0) + beta*y.func(data.getB(),0);//5;
+    }
+
+    private void setFuncs(){
         p = (x,y) -> x+1;
         q = (x,y) -> 1;
         //f = (x,y) -> -x*x*x*x+16*x*x*x+12*x*x;
         f = (x,y) -> -x*x+4*x+2;
 
-        funcs = new Func[3];
+        // точное решение
+        y = (x, y) -> x*x;//x*x*x*x;//
+        v = (x, y) -> 2*x;//4*x*x*x;//
+
+        funcs = new Func[5];
         funcs[0] = p;
         funcs[1] = q;
         funcs[2] = f;
+
+        funcs[3] = y;
+        funcs[4] = v;
     }
 
     /**
@@ -101,7 +113,7 @@ public class DiffSweep {
      */
     private double[] transferEdgeConditionAlpha(){
         DataForMethod dataForMethod = new DataForMethod(data.getA(), data.getB(),
-                                                        data.getAlpha(), data.getBeta(), data.getN(),
+                                                        data.getAlpha(), data.getBeta(), data.getN()*1000,
                                                         false, funcs);
 
         RungeMethodAlphaBeta rungeMethodAlphaBeta = new RungeMethodAlphaBeta(dataForMethod, gammaEdgeCondTwo);
@@ -118,7 +130,7 @@ public class DiffSweep {
      */
     private double[] transferEdgeConditionBeta(){
         DataForMethod dataForMethod = new DataForMethod(data.getA(), data.getB(),
-                data.getAlpha(), data.getBeta(), data.getN(),
+                data.getAlpha(), data.getBeta(), data.getN()*10000,
                 false, funcs);
 
         RungeMethodPhiPsi rungeMethodPhiPsi = new RungeMethodPhiPsi(dataForMethod, gammaEdgeCondTwo);
@@ -163,7 +175,7 @@ public class DiffSweep {
             // определитель системы
             double delta = p.func(alphaInA, 0);
 
-            yDiffInA = (betaInA - gammaEdgeCondOne * alphaInA) / delta;
+            yDiffInA = (betaInA + gammaEdgeCondOne * alphaInA) / delta;
             yInA = gammaEdgeCondOne;
             hasSolution = isHasSolution(delta);
         }
@@ -191,7 +203,7 @@ public class DiffSweep {
                phiInA = coeff[0];
                psiInA = coeff[1];
                // определитель системы
-               double delta = phiInA*p.func(alphaInA, 0);
+               double delta = phiInA*p.func(phiInA, 0);
 
                yDiffInA = (psiInA + gammaEdgeCondOne) / delta;
                yInA = gammaEdgeCondOne;
